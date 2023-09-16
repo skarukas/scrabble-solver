@@ -1,8 +1,9 @@
 from __future__ import annotations
 import copy
-from typing import List, Optional, Iterator
+from typing import List, Optional, Iterator, Sequence
 
 from scrabble.util import constants as C
+from scrabble.util.constants import Style
 from scrabble.util.scrabble_move import Move
 from scrabble.util.scrabble_util import Direction
 from scrabble.util.scrabble_util import PlacedTile
@@ -15,6 +16,7 @@ class ScrabbleBoard:
     self._array = array
     self.width = len(array[0])
     self.height = len(array)
+    self._start_point = Point(self.width // 2, self.height // 2)
 
   def __getitem__(self, point: Point) -> str:
     if point not in self:
@@ -31,13 +33,33 @@ class ScrabbleBoard:
       for y in range(self.height):
         yield Point(x, y)
 
+  def printable_board(self, highlighted_tiles: Optional[Sequence[PlacedTile]]=None) -> str:
+    highlighted_tiles = set(tile.location for tile in highlighted_tiles) if highlighted_tiles else set()
+    result = ""
+    longdash = ("_" * 3 * self.width) + "\n"
+    result += longdash
+    for x in range(self.width):
+      for y in range(self.height):
+        point = Point(x, y)
+        letter = self[point]
+        is_highlighted = point in highlighted_tiles
+        result += self._style_tile("{:3}".format(letter), is_highlighted)
+      result += "\n"
+    result += longdash
+    return result.rstrip() 
+
   def __repr__(self) -> str:
-    # TODO: Make columns equal width.
-    a = _transpose_array(self._array)
-    s = ""
-    for l in a:
-      s += " ".join(l) + "\n"
-    return s
+    return self.printable_board()
+
+  def _style_tile(self, c: str, is_highlighted=False) -> str:
+    if c.strip().isalpha():
+      if is_highlighted:
+        styles = [Style.BOLD, Style.OKGREEN]
+      else:
+        styles = [Style.BOLD, Style.WARNING]
+      return Style.apply_styles(c.upper(), *styles)
+    else:
+      return c
 
   def can_place_tile_at(self, point: Point) -> bool:
     return point in self and not self.has_tile_at(point)
@@ -46,7 +68,8 @@ class ScrabbleBoard:
     return point in self and (self[point].isalpha() or self[point] == " ")
 
   def point_touches_tiles(self, point: Point) -> bool:
-    return any(
+    # TODO: rename.
+    return point == self._start_point or any(
         self.has_tile_at(point.move(direction)) for direction in Direction
     )
 

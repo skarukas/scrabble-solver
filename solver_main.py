@@ -3,7 +3,7 @@ from absl import flags
 from scrabble.context.scrabble_board import ScrabbleBoard
 from scrabble.context.scrabble_context import ScrabbleContext
 from scrabble.context.scrabble_dictionary import ScrabbleDictionary
-from scrabble.solver.scrabble_solver import ScrabbleSolver
+from scrabble.solver.scrabble_solver import ComputerPlayer
 from scrabble.util import constants as C
 from scrabble.util.scrabble_move import Move
 
@@ -17,12 +17,12 @@ _DICTIONARY_FILEPATH = flags.DEFINE_string(
 _BOARD_FILEPATH = flags.DEFINE_string(
     "board_filepath",
     C.DEFAULT_BOARD_FILEPATH,
-    "A path to a .txt file containing the board as a grid.",
+    "A path to a .txt file containing the initial board as a grid.",
 )
 
 _CURRENT_LETTERS = flags.DEFINE_string(
     "current_letters",
-    "chovies",
+    "soiwnfp",
     (
         "A string containing the letters that the player has, in any order and"
         " without spaces or punctuation. Blank tiles should be notated with an"
@@ -51,15 +51,17 @@ def main(argv):
   del argv
   board = ScrabbleBoard.open(_BOARD_FILEPATH.value)
   dictionary = ScrabbleDictionary.open(_DICTIONARY_FILEPATH.value)
-  context = ScrabbleContext(_CURRENT_LETTERS.value, board, dictionary)
-  solver = ScrabbleSolver.create_from_options(
+  context = ScrabbleContext(board, dictionary)
+  solver = ComputerPlayer(
+      "scrabble-bot",
+      _CURRENT_LETTERS.value,
       context,
       _PRIORITY_CALCULATION.value,
       _PRUNING_STRATEGY.value,
       _RANKING_STRATEGY.value,
   )
   print("I'm thinking...")
-  move: Move = solver.calculate_next_move()
+  move: Move = solver.choose_next_move(context)
   score_dict = context.score_move(move, check_valid=True)
   print("Here's the move you should do:")
   print(move)

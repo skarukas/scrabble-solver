@@ -15,9 +15,7 @@ from scrabble.solver.state import TerminalState
 
 class RankingStrategy:
 
-  def pick_best(
-      self, best_state: TerminalState, curr_state: TerminalState
-  ) -> TerminalState:
+  def is_better_than(self, state: TerminalState, other: TerminalState) -> bool:
     raise NotImplementedError()
 
   @staticmethod
@@ -36,41 +34,22 @@ class RankingStrategy:
 class Random(RankingStrategy):
   p: float
 
-  def pick_best(
-      self, best_state: TerminalState, curr_state: TerminalState
-  ) -> TerminalState:
-    if curr_state.score["total_score"] > best_state.score["total_score"]:
+  def is_better_than(self, state: TerminalState, other: TerminalState) -> bool:
+    if state.score["total_score"] > other.score["total_score"]:
       prob = self.p
     else:
       prob = 1 - self.p
 
-    if random.random() <= prob:
-      return curr_state
-    else:
-      return best_state
+    return random.random() <= prob
 
 
 class MaxScore(RankingStrategy):
 
-  def pick_best(
-      self, best_state: TerminalState, curr_state: TerminalState
-  ) -> TerminalState:
-    if curr_state.score["total_score"] > best_state.score["total_score"]:
-      s = curr_state.score["total_score"]
-      print(f"New best: {curr_state.move} ({s} points)")
-      return curr_state
-    else:
-      return best_state
+  def is_better_than(self, state: TerminalState, other: TerminalState) -> bool:
+    return state.score["total_score"] > other.score["total_score"]
 
 
 class MostWords(RankingStrategy):
 
-  def pick_best(
-      self, best_state: TerminalState, curr_state: TerminalState
-  ) -> TerminalState:
-    if len(curr_state.score["word_scores"]) > len(
-        best_state.score["word_scores"]
-    ):
-      return curr_state
-    else:
-      return best_state
+  def is_better_than(self, state: TerminalState, other: TerminalState) -> bool:
+    return len(state.score["word_scores"]) > len(other.score["word_scores"])

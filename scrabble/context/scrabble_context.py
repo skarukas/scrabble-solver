@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence
+from typing import Any, Dict, List, Sequence, Optional
 
 from scrabble.util import constants as C
 from scrabble.util.scrabble_move import Move
 from scrabble.util.scrabble_move import MoveType
-from scrabble.util.scrabble_util import Direction
 from scrabble.util.scrabble_util import PlacedTile
-from scrabble.util.scrabble_util import Point
 from scrabble.context.scrabble_board import ScrabbleBoard
+from scrabble.context.tile_pool import TilePool
 from scrabble.context.scrabble_dictionary import ScrabbleDictionary
 
 
@@ -17,14 +16,15 @@ class ScrabbleContext(object):
 
   def __init__(
       self,
-      player_letters: str,
       board: ScrabbleBoard,
-      dictionary: ScrabbleDictionary,
+      dictionary: ScrabbleDictionary
   ):
-    self.player_letters = list(player_letters.lower())
     self.board = board
     self.dictionary = dictionary
     self.solver_constraint_map = {}
+
+  def execute_move(self, move: Move) -> ScrabbleContext:
+    return ScrabbleContext(self.board.execute_move(move), self.dictionary)
 
   def score_move(self, move: Move, check_valid=False) -> Dict[str, Any]:
     """Calculate the score for the given move."""

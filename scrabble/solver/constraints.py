@@ -130,6 +130,9 @@ class AffixConstraints:
     # A valid submove: all letter sequences formed are prefixes or suffixes of
     # known words.
     # A valid move: all letter sequences formed are words.
+    if not self._directional_constraints:
+      # Should only happen for single-letter words.
+      return (True, letter in self._dictionary)
 
     (
         forms_horizontal_affixes,

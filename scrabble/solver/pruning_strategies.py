@@ -5,6 +5,7 @@ import random
 
 from scrabble.solver.state import TerminalState
 from scrabble.solver.state import State
+from scrabble.context.scrabble_context import ScrabbleContext
 
 
 class PruningStrategy:

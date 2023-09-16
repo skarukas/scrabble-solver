@@ -108,51 +108,46 @@ class State:
     child_states = []
     # If a direction is set, explore in that one. Otherwise explore in all
     # directions.
-    directions = (
-        [self.direction]
-        if self.direction
-        else [Direction.RIGHT, Direction.DOWN]
-    )
-    for direction in directions:  # Assume direction in [RIGHT, DOWN].
-      for letter in self.letters_left:
-        (
-            is_valid_submove,
-            is_valid_move,
-        ) = self.constraints.check_constraints(letter, direction)
-        if is_valid_submove:
-          placed_tiles = [
-              *self.move.placed_tiles,
-              PlacedTile(letter, self.point),
-          ]
-          move = Move(placed_tiles)
-          new_point = self.point.move(direction)
-          if not context.board.can_place_tile_at(new_point):
-            continue
+    for letter in self.letters_left:
+      (
+          is_valid_submove,
+          is_valid_move,
+      ) = self.constraints.check_constraints(letter, self.direction)
+      if is_valid_submove:
+        placed_tiles = [
+            *self.move.placed_tiles,
+            PlacedTile(letter, self.point),
+        ]
+        move = Move(placed_tiles)
+        new_point = self.point.move(self.direction)
+        if not context.board.can_place_tile_at(new_point):
+          continue
 
-          # Build the new state after putting down this letter.
-          # TODO: Update constraints instead of generating from scratch.
-          #print(f"trying to get constraints at {new_point} with {move}")
-          new_board = context.board.execute_move(move)
-          constraints = AffixConstraints.get_constraints_at_point(
-              new_board, context.dictionary, new_point
-          )
-          touches_tile = self.touches_tile or context.board.point_touches_tiles(
-              new_point
-          )
-          letters_left = self.letters_left.copy()
-          letters_left.remove(letter)  # Remove first occurence.
-          state = State(
-              letters_left,
-              move,
-              new_point,
-              constraints,
-              direction,
-              touches_tile,
-          )
-          child_states.append(state)
-          if is_valid_move and touches_tile:
-            terminal_state = TerminalState.create_from_state(state, context)
-            terminal_states.append(terminal_state)
+        # Build the new state after putting down this letter.
+        # TODO: Update constraints instead of generating from scratch.
+        new_board = context.board.execute_move(move)
+        constraints = AffixConstraints.get_constraints_at_point(
+            new_board, context.dictionary, new_point
+        )
+        if constraints is None:
+          continue
+        touches_tile = self.touches_tile or context.board.point_touches_tiles(
+            new_point
+        )
+        letters_left = self.letters_left.copy()
+        letters_left.remove(letter)  # Remove first occurence.
+        state = State(
+            letters_left,
+            move,
+            new_point,
+            constraints,
+            self.direction,
+            touches_tile,
+        )
+        child_states.append(state)
+        if is_valid_move and self.touches_tile:
+          terminal_state = TerminalState.create_from_state(state, context)
+          terminal_states.append(terminal_state)
 
     return terminal_states, child_states
 
