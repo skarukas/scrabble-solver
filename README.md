@@ -5,3 +5,9 @@ This implementation is a custom algorithm that uses graph search to explore all 
 Watch 2 Scrabble bots play each other by running `bazel run :scrabble_game_main`!
 
 ![scrabble-story.gif](scrabble-story.gif)
+
+
+
+Displaying all valid moves (`ComputerPlayer` with `print_all_valid_states = True`):
+
+![scrabble-all-states-story.gif](scrabble-all-states-story.gif)
