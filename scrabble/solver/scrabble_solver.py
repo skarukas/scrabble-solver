@@ -107,7 +107,7 @@ class ComputerPlayer(AbstractPlayer):
         priority_strategy: str = "total_score",
         pruner_strategy: str = "never",
         ranker_strategy: str = "max_score",
-        print_all_valid_states = False
+        print_all_valid_states=False
     ):
         super().__init__(name, rack_letters)
         self.print_all_valid_states = print_all_valid_states
@@ -241,7 +241,7 @@ class ComputerPlayer(AbstractPlayer):
                 move = candidate.move
                 board = context.board.execute_move(move)
                 if self.print_all_valid_states:
-                  print(board.printable_board(move.placed_tiles))
+                    print(board.printable_board(move.placed_tiles))
                 if best_candidate is None or self._ranker.is_better_than(candidate, best_candidate):
                     best_candidate = candidate
 
