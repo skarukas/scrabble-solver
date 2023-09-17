@@ -57,8 +57,8 @@ def main(argv):
   context = ScrabbleContext(board, dictionary)
   pool = TilePool(C.TILE_COUNTS, is_infinite=False)
   players = [
-    ComputerPlayer("bot1 (objective=most_words)", pool.draw(C.TILES_DRAWN_PER_PLAYER), context, _PRIORITY_CALCULATION.value, _PRUNING_STRATEGY.value, _RANKING_STRATEGY.value),
-    ComputerPlayer("bot2 (objective=most_words)", pool.draw(C.TILES_DRAWN_PER_PLAYER), context, _PRIORITY_CALCULATION.value, _PRUNING_STRATEGY.value, _RANKING_STRATEGY.value)
+    ComputerPlayer(f"bot1 (objective={_RANKING_STRATEGY.value})", pool.draw(C.TILES_DRAWN_PER_PLAYER), context, _PRIORITY_CALCULATION.value, _PRUNING_STRATEGY.value, _RANKING_STRATEGY.value),
+    ComputerPlayer(f"bot2 (objective={_RANKING_STRATEGY.value})", pool.draw(C.TILES_DRAWN_PER_PLAYER), context, _PRIORITY_CALCULATION.value, _PRUNING_STRATEGY.value, _RANKING_STRATEGY.value)
   ]
   game = ScrabbleGame(context, players, pool)
 
